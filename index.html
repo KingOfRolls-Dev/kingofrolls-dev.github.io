@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>METAR Quiz – Practice METAR Decoding | Rolls Development</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="METAR Quiz is a small Windows app from Rolls Development that pulls real METARs so pilots and students can get quick decoding practice."
+  />
+  <meta name="author" content="Rolls Development" />
+  <meta
+    name="keywords"
+    content="METAR quiz, METAR decoder, aviation weather quiz, IFR training, instrument rating, pilot study tool, Rolls Development"
+  />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="METAR Quiz – Practice METAR Decoding" />
+  <meta
+    property="og:description"
+    content="A simple METAR quiz app for Windows that uses real-world METARs. Built by a pilot for pilots."
+  />
+  <meta property="og:url" content="https://kingofrolls-dev.github.io/" />
+
+  <style>
+    :root {
+      --rd-main: #8b0000;
+      --rd-secondary: #b22222;
+      --rd-dark: #870000;
+      --bg: #060708;
+      --card-bg: #111217;
+      --text-main: #f6f6f6;
+      --text-muted: #b0b3c0;
+      --accent-soft: #222534;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #202233 0, #050609 55%, #010104 100%);
+      color: var(--text-main);
+      scroll-behavior: smooth;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .brand-title {
+      font-family: "Cinzel", "Times New Roman", serif;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      color: var(--rd-main);
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      position: relative;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.3rem;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--rd-main), var(--rd-secondary));
+      transition: width 0.18s ease-out;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
+      gap: 2.5rem;
+      padding: 2.25rem 0 2.5rem;
+      align-items: center;
+    }
+
+    .hero-title {
+      font-size: clamp(2.1rem, 3vw, 2.6rem);
+      line-height: 1.1;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-title span {
+      color: var(--rd-secondary);
+    }
+
+    .hero-tagline {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      max-width: 32rem;
+      margin-bottom: 1.3rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .hero-meta span::before {
+      content: "•";
+      color: var(--rd-secondary);
+      font-size: 1.1rem;
+      transform: translateY(-1px);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.92rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.18s ease-out, transform 0.12s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, var(--rd-main), var(--rd-secondary));
+      border-color: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 18px rgba(139, 0, 0, 0.65);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(139, 0, 0, 0.85);
+    }
+
+    .btn-ghost {
+      background: rgba(10, 11, 18, 0.95);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--rd-secondary);
+      color: var(--text-main);
+      background: rgba(10, 11, 18, 0.99);
+    }
+
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .hero-note strong {
+      color: var(--rd-secondary);
+      font-weight: 600;
+    }
+
+    .hero-card {
+      background: radial-gradient(circle at top, #24263b 0, #181926 45%, #060710 100%);
+      border-radius: 1.25rem;
+      padding: 1.4rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 10% -10%, rgba(255, 255, 255, 0.12), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.7rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-card-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .hero-card-badge {
+      font-size: 0.72rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #d1f7c4;
+    }
+
+    .hero-metar {
+      font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      background: rgba(1, 2, 8, 0.84);
+      border-radius: 0.85rem;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 0.7rem;
+      position: relative;
+      z-index: 1;
+      color: #e4e7ff;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    .hero-breakdown {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-breakdown-item {
+      background: rgba(3, 4, 12, 0.85);
+      border-radius: 0.75rem;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.74rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
+    }
+
+    .hero-breakdown-label {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.7rem;
+    }
+
+    .hero-breakdown-value {
+      font-weight: 500;
+      color: #f7f7ff;
+    }
+
+    .hero-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .section {
+      margin-top: 2.25rem;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 34rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .card h3 {
+      font-size: 0.98rem;
+      margin: 0 0 0.3rem;
+    }
+
+    .card p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .download-card {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr);
+      gap: 1rem;
+    }
+
+    .download-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .roadmap-link {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .roadmap-link a {
+      color: var(--rd-secondary);
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 850px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hero-card {
+        order: -1;
+      }
+
+      .download-card {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "METAR Quiz",
+    "operatingSystem": "Windows",
+    "applicationCategory": "EducationalApplication",
+    "description": "A small METAR quiz app that uses real METARs so pilots and students can practice decoding.",
+    "softwareVersion": "1.0.1",
+    "author": {
+      "@type": "Organization",
+      "name": "Rolls Development"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Rolls Development"
+    },
+    "downloadUrl": "https://github.com/KingOfRolls-Dev/Metar_decoder/releases/latest",
+    "url": "https://kingofrolls-dev.github.io/"
+  }
+  </script>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="brand-title">Rolls Development</div>
+        <div class="brand-subtitle">Aviation · Code · Random side projects</div>
+      </div>
+      <nav>
+        <a href="#metar-quiz">METAR Quiz</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="https://github.com/KingOfRolls-Dev" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="metar-quiz">
+      <section class="hero">
+        <div>
+          <h1 class="hero-title">
+            A simple <span>METAR quiz</span> for pilots and students.
+          </h1>
+          <p class="hero-tagline">
+            I got tired of stale textbook examples, so I wrote a small Windows app that pulls real METARs
+            and lets you practice decoding them. Nothing fancy, just reps with actual weather.
+          </p>
+          <div class="hero-meta">
+            <span>Windows standalone app</span>
+            <span>Uses live METARs</span>
+            <span>Made for IFR students and CFIs</span>
+          </div>
+
+          <div class="btn-row">
+            <a
+              class="btn-primary"
+              href="https://github.com/KingOfRolls-Dev/Metar_decoder/releases/latest"
+              target="_blank"
+              rel="noopener"
+            >
+              ⬇ Download METAR Quiz (Windows)
+            </a>
+            <a
+              class="btn-ghost"
+              href="https://github.com/KingOfRolls-Dev/Metar_decoder"
+              target="_blank"
+              rel="noopener"
+            >
+              View the repo on GitHub
+            </a>
+          </div>
+
+          <p class="hero-note">
+            <strong>Heads up:</strong> Windows SmartScreen may complain because this isn’t a big-name publisher.
+            Hit <em>More info → Run anyway</em> if you’re comfortable running it.
+          </p>
+        </div>
+
+        <aside class="hero-card" aria-label="METAR Quiz preview">
+          <div class="hero-card-header">
+            <div class="hero-card-title">METAR QUIZ · SAMPLE</div>
+            <div class="hero-card-badge">Live METAR style</div>
+          </div>
+          <div class="hero-metar">
+            METAR KDEN 162053Z 32018G26KT 10SM FEW050 SCT080 BKN120 07/M02 A2992 RMK AO2
+          </div>
+          <div class="hero-breakdown">
+            <div class="hero-breakdown-item">
+              <div class="hero-breakdown-label">Wind</div>
+              <div class="hero-breakdown-value">320° @ 18G26</div>
+            </div>
+            <div class="hero-breakdown-item">
+              <div class="hero-breakdown-label">Visibility</div>
+              <div class="hero-breakdown-value">10 SM</div>
+            </div>
+            <div class="hero-breakdown-item">
+              <div class="hero-breakdown-label">Clouds</div>
+              <div class="hero-breakdown-value">FEW 5k · SCT 8k · BKN 12k</div>
+            </div>
+            <div class="hero-breakdown-item">
+              <div class="hero-breakdown-label">Temp / Dewpoint</div>
+              <div class="hero-breakdown-value">07°C / -02°C · Alt 29.92</div>
+            </div>
+          </div>
+          <p class="hero-hint">
+            In the app you try to decode it yourself, then it tells you what you nailed and what you butchered.
+          </p>
+        </aside>
+      </section>
+
+      <section id="features" class="section">
+        <h2 class="section-title">What it actually does</h2>
+        <p class="section-subtitle">
+          The goal isn’t to be some giant training platform. It’s just a small tool that gives you
+          more reps reading METARs without digging through websites every time.
+        </p>
+        <div class="cards">
+          <article class="card">
+            <h3>Real METARs</h3>
+            <p>
+              The app grabs current METARs so you’re seeing the same kind of stuff you’d pull for an actual flight.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Live data</span>
+              <span class="pill">Real conditions</span>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Focused on decoding</h3>
+            <p>
+              You read the METAR, enter your interpretation, and it scores the parts that matter:
+              wind, vis, clouds, weather, temp/dewpoint, altimeter.
+            </p>
+            <div class="pill-row">
+              <span class="pill">IFR &amp; VFR</span>
+              <span class="pill">Checkride prep</span>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Good for students and CFIs</h3>
+            <p>
+              Use it on your own, or have a CFI sit next to you and talk through what you missed.
+            </p>
+            <div class="pill-row">
+              <span class="pill">Ground lesson friendly</span>
+              <span class="pill">Quick drill tool</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="download" class="section">
+        <h2 class="section-title">Download &amp; install</h2>
+        <p class="section-subtitle">
+          Everything ships through GitHub Releases. No weird download sites.
+        </p>
+
+        <div class="download-card">
+          <div>
+            <h3>1. Grab the latest build</h3>
+            <p>
+              Head to the Releases page and download the latest Windows installer:
+            </p>
+            <p class="download-note">
+              👉
+              <a
+                href="https://github.com/KingOfRolls-Dev/Metar_decoder/releases/latest"
+                target="_blank"
+                rel="noopener"
+              >
+                Open latest release
+              </a>
+            </p>
+
+            <h3 style="margin-top: 1rem;">2. Run the installer</h3>
+            <p>
+              Run <code>METAR_Decoder_Setup.exe</code>, follow the prompts, and then launch
+              <em>METAR Quiz</em> from the Start Menu or your desktop shortcut.
+            </p>
+          </div>
+
+          <div>
+            <h3>About SmartScreen</h3>
+            <p class="download-note">
+              Since this is a small personal project, Windows will probably call it an “unrecognized app”.
+              That doesn’t mean it’s sketchy, it just means Microsoft has never seen it before.
+            </p>
+            <p class="download-note">
+              If you’re not comfortable with that, you can always inspect the repo first, or just delete it.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" class="section">
+        <h2 class="section-title">Where it’s going</h2>
+        <p class="section-subtitle">
+          I’m still tweaking it between flying and everything else. Rough plan:
+        </p>
+        <div class="cards">
+          <article class="card">
+            <h3>Near-term</h3>
+            <p>
+              Clean up the UI, better breakdown of results, smoother flow between METARs.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Mid-term</h3>
+            <p>
+              Difficulty options, basic stats, and some simple history so you can see how often you mess up winds.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Long-term</h3>
+            <p>
+              TAF support, maybe a web or macOS version if it’s worth the time.
+            </p>
+          </article>
+        </div>
+        <p class="roadmap-link">
+          If you’re curious, the public roadmap lives here:
+          <a
+            href="https://github.com/users/KingOfRolls-Dev/projects"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub Projects – Metar Quiz Roadmap
+          </a>
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> Rolls Development · METAR Quiz</span>
+      <span>
+        Project:
+        <a
+          href="https://github.com/KingOfRolls-Dev/Metar_decoder"
+          target="_blank"
+          rel="noopener"
+        >
+          github.com/KingOfRolls-Dev/Metar_decoder
+        </a>
+      </span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
